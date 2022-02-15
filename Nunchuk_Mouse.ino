@@ -2,12 +2,12 @@
 #include "Mouse.h"
 #include "Nunchuk.h"
 
-// #include DEBUG_EN
+// #define DEBUG_EN
 
-#define interval_ms 10                          // 設定間隔時間
-unsigned long currentMillis = 0, preMillis = 0; // 現在及前次時間
-float joyx = 0, joyy = 0;
-unsigned char is_scroll = 0;
+#define interval_ms 10                            // 設定間隔時間
+unsigned long currentMillis = 0, preMillis = 0;   // 現在及前次時間
+short joyx = 0, joyy = 0;
+char is_scroll = 0;
 
 void setup() {
 #ifdef DEBUG_EN
@@ -33,8 +33,8 @@ void setup() {
             // Work with nunchuk_data
 //            nunchuk_print();
 
-            joyx = 0.5 * (nunchuk_joystickX());
-            joyy = 0.5 * (nunchuk_joystickY() * -1);
+            joyx = (nunchuk_joystickX());
+            joyy = (nunchuk_joystickY() * -1);
 
 #ifdef DEBUG_EN
             Serial.print(joyx);
@@ -42,15 +42,19 @@ void setup() {
             Serial.println(joyy);
 #endif
 
-            if((joyx > 2.0 || joyx < -2.0) || (joyy > 2.0 || joyy < -2.0))
+            // use map instead multiply, thanks will!
+            joyx = map(joyx, -100, 100, -40, 40);
+            joyy = map(joyy, -100, 100, -40, 40);
+
+            if((joyx > 2 || joyx < -2) || (joyy > 2 || joyy < -2))
             {
                 if(nunchuk_buttonC())
                 {
                     is_scroll = 1;
                     if(joyy > 0)
-                        Mouse.move(0, 0, -1);
-                    else if(joyy < 0)
                         Mouse.move(0, 0, 1);
+                    else if(joyy < 0)
+                        Mouse.move(0, 0, -1);
                 }
                 else
                 {
